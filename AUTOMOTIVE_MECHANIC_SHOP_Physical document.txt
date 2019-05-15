@@ -1,0 +1,282 @@
+/* Mechanical Car Shop Project */
+
+/* 
+	The project consists of a simple request from a local car mechanic owner.
+	He'd like to organize his activities, from cars being repaired to customer
+	organization, into a single place and remove the usage of spreadsheets. 
+	
+	Business Rules:
+	
+	1. Each client must have at least one phone number for contact, and only one 
+	adress, as more than one adress caused issues in cases of car delivering;
+	2. Each client may have more than one car at a time in the shop;
+	3. Not every car that comes to the shop has an issue, sometimes the owner
+	just wishes to be sure everything is ok with the vehicle;
+	4. He also wants to create a backup for the clients, just to be sure.
+ */
+ 
+ 
+ 
+ 
+/* Creating the database */ 
+
+ CREATE DATABASE MECHANIC_SHOP;
+ 
+ USE MECHANIC_SHOP;
+ 
+/* Creating the tables */
+ 
+CREATE TABLE CUSTOMER(
+	IDCUSTOMER INT PRIMARY KEY AUTO_INCREMENT,
+	NAME VARCHAR(40) NOT NULL,
+	GENDER ENUM('M','F') NOT NULL
+);
+ 
+CREATE TABLE ADRESS(
+	IDADRESS INT PRIMARY KEY AUTO_INCREMENT,
+	HOUSE_NUMBER INT NOT NULL,
+	STREET VARCHAR(50) NOT NULL,
+	NEIGHBORHOOD VARCHAR(30),
+	CITY VARCHAR(30) NOT NULL,
+	ZIP_CODE INT NOT NULL UNIQUE,
+	ID_CUSTOMER INT
+);
+ 
+CREATE TABLE TELEPHONE(
+	IDTELEPHONE INT PRIMARY KEY AUTO_INCREMENT,
+	TYPE_F ENUM('CELLPHONE','TELEPHONE') NOT NULL,
+	NUM VARCHAR(11) NOT NULL,
+	ID_CUSTOMER_TEL INT NOT NULL
+);
+ 
+CREATE TABLE CAR(
+	IDCAR INT PRIMARY KEY AUTO_INCREMENT,
+	PLATE VARCHAR(10) NOT NULL UNIQUE,
+	COLOR VARCHAR(20) NOT NULL,
+	BRAND VARCHAR(20) NOT NULL,
+	MODEL VARCHAR(20) NOT NULL,
+	ID_CUSTOMER_CAR INT
+);
+ 
+CREATE TABLE ISSUE(
+	IDISSUE INT PRIMARY KEY AUTO_INCREMENT,
+	TYPE_I VARCHAR(30) NOT NULL,
+	ID_CAR INT NOT NULL UNIQUE
+);
+ 
+ 
+/* Creating constraints */
+ 
+ALTER TABLE ADRESS ADD CONSTRAINT FK_ADRESS_CUSTOMER
+FOREIGN KEY(ID_CUSTOMER) REFERENCES CUSTOMER(IDCUSTOMER);
+ 
+ALTER TABLE TELEPHONE ADD CONSTRAINT FK_TELEPHONE_CUSTOMER
+FOREIGN KEY(ID_CUSTOMER_TEL) REFERENCES CUSTOMER(IDCUSTOMER);
+ 
+ALTER TABLE CAR ADD CONSTRAINT FK_CAR_CUSTOMER
+FOREIGN KEY(ID_CUSTOMER_CAR) REFERENCES CUSTOMER(IDCUSTOMER);
+ 
+ALTER TABLE ISSUE ADD CONSTRAINT FK_ISSUE_CAR
+FOREIGN KEY(ID_CAR) REFERENCES CAR(IDCAR);
+
+
+/* Inserting data to the tables */
+
+/* Customer data */
+
+INSERT INTO CUSTOMER VALUES(NULL,'JOAO OLIVEIRA','M');
+INSERT INTO CUSTOMER VALUES(NULL,'AMANDA ALVES','F');
+INSERT INTO CUSTOMER VALUES(NULL,'RENATO SIMOES','M');
+INSERT INTO CUSTOMER VALUES(NULL,'ALINE OLIVEIRA','F');
+INSERT INTO CUSTOMER VALUES(NULL,'VICTOR MACEDO','M');
+INSERT INTO CUSTOMER VALUES(NULL,'ALEXANDRA SILVA','F');
+INSERT INTO CUSTOMER VALUES(NULL,'DEBORA SILVEIRA','F');
+INSERT INTO CUSTOMER VALUES(NULL,'ANTONIO ALBUQUERQUE','M');
+INSERT INTO CUSTOMER VALUES(NULL,'HERALDO MEDIA','M');
+INSERT INTO CUSTOMER VALUES(NULL,'ENIO GRANDE','M');
+
+/* Adress data */
+ 
+INSERT INTO ADRESS VALUES(NULL,123,'Adelaide Avenue','Adelaide','Sampa',00000001,1);
+INSERT INTO ADRESS VALUES(NULL,14,'Danish Avenue','Danish','Sampa',12321,2);
+INSERT INTO ADRESS VALUES(NULL,2,'East Hills Avenue','East Hills','Sampa',67438,3);
+INSERT INTO ADRESS VALUES(NULL,954,'Gold Street','Adelaide','Sampa',8670560,4);
+INSERT INTO ADRESS VALUES(NULL,68,'Hendrix Avenue','Melaware','Sampa',2323232,5);
+INSERT INTO ADRESS VALUES(NULL,790,'Hurbadome Avenue','Center','NY',7073457,6);
+INSERT INTO ADRESS VALUES(NULL,44,'Industry Street','South','Sampa',23556780,7);
+INSERT INTO ADRESS VALUES(NULL,980,'Lucy Street','Center','Sampa',111111,8);
+INSERT INTO ADRESS VALUES(NULL,4678,'Mill Place','Outskirts','Sampa',37569,9);
+INSERT INTO ADRESS VALUES(NULL,99,'Newport Street','Port','LA',55557347,10);
+
+/* Telephone data */
+ 
+INSERT INTO TELEPHONE VALUES(NULL,'CELLPHONE',12347895,1);
+INSERT INTO TELEPHONE VALUES(NULL,'TELEPHONE',99998381,1);
+INSERT INTO TELEPHONE VALUES(NULL,'CELLPHONE',45458967,2);
+INSERT INTO TELEPHONE VALUES(NULL,'CELLPHONE',78943216,3);
+INSERT INTO TELEPHONE VALUES(NULL,'TELEPHONE',45451234,4);
+INSERT INTO TELEPHONE VALUES(NULL,'CELLPHONE',78944875,5);
+INSERT INTO TELEPHONE VALUES(NULL,'CELLPHONE',78324512,6);
+INSERT INTO TELEPHONE VALUES(NULL,'TELEPHONE',65875498,6);
+INSERT INTO TELEPHONE VALUES(NULL,'CELLPHONE',77774152,7);
+INSERT INTO TELEPHONE VALUES(NULL,'TELEPHONE',96325874,8);
+INSERT INTO TELEPHONE VALUES(NULL,'CELLPHONE',78943217,9);
+INSERT INTO TELEPHONE VALUES(NULL,'CELLPHONE',91375428,10);
+
+/* Cars data */
+
+INSERT INTO CAR VALUES(NULL,'255 6264','Blue','Toyota','Cruiser',1);
+INSERT INTO CAR VALUES(NULL,'919 1093','Black','Subaru','Vendetta',2);
+INSERT INTO CAR VALUES(NULL,'741 9758','Black','Chevrolet','Genius',3);
+INSERT INTO CAR VALUES(NULL,'667 2527','White','Peugeot','SD300',3);
+INSERT INTO CAR VALUES(NULL,'805 6022','Green','Fiat','Uno',4);
+INSERT INTO CAR VALUES(NULL,'459 6385','Azure','Fiat','Bachelor',5);
+INSERT INTO CAR VALUES(NULL,'364 3950','Red','Volkswagen','Fusca',6);
+INSERT INTO CAR VALUES(NULL,'984 1417','Yellow','Renault','Alpha',7);
+INSERT INTO CAR VALUES(NULL,'188 3086','Azure','Volkswagen','Fusca',8);
+INSERT INTO CAR VALUES(NULL,'172 8831','White','Jeep','Idea',9);
+INSERT INTO CAR VALUES(NULL,'621 5283','Black','Nissan','Skyline',10);
+
+/* Issue data (with humor) */
+
+INSERT INTO ISSUE VALUES(NULL,'CAR HAS TOO MUCH POTENCY',10);
+
+
+
+
+/* Queries with join to show information from other tables */
+
+/* Simple query to show basic information from clients */
+
+SELECT 
+	C.NAME AS 'NAME',
+	T.TYPE_F AS 'TYPE',
+	T.NUM AS 'PHONE NUMBER', 
+	A.CITY, 
+	D.MODEL AS 'CAR MODEL', 
+	D.COLOR AS 'CAR COLOR'
+FROM CUSTOMER C
+INNER JOIN TELEPHONE T
+ON C.IDCUSTOMER = T.ID_CUSTOMER_TEL
+INNER JOIN ADRESS A
+ON C.IDCUSTOMER = A.ID_CUSTOMER
+INNER JOIN CAR D
+ON C.IDCUSTOMER = D.ID_CUSTOMER_CAR
+WHERE TYPE_F = 'CELLPHONE' AND CITY = 'SAMPA';
+
+/* Simples query to check cars with issues */
+
+SELECT C.MODEL, C.BRAND, C.COLOR, I.TYPE_I AS 'ISSUE'
+FROM CAR C
+INNER JOIN ISSUE I
+ON C.IDCAR = I.ID_CAR;
+
+/* 
+	It seems the data refering to the Nissan Skyline was added with the ID
+	regargind the 10th entry in the list. We can update the issue entry so
+	it will refer to the correct car:
+*/
+
+UPDATE ISSUE
+SET ID_CAR = 11
+WHERE IDISSUE = 1;
+
+/* Now the previous query returns the correct answer */
+
+SELECT C.MODEL, C.BRAND, C.COLOR, I.TYPE_I AS 'ISSUE'
+FROM CAR C
+INNER JOIN ISSUE I
+ON C.IDCAR = I.ID_CAR;
+
+/* 
+	One of the customers recently sold one of his cars, a Chevrolet, let us find which
+	customer has more than one car and delete said vehicle:
+*/
+ 
+SELECT C.IDCUSTOMER, C.NAME, A.IDCAR, A.BRAND, A.MODEL
+FROM CUSTOMER C
+INNER JOIN CAR A
+ON C.IDCUSTOMER = A.ID_CUSTOMER_CAR;
+
+/*
+	We can easily see that Renato has more than one car. But what if the list
+	had thousands of lines? One easy way to check occurrences in the database
+	is by counting them (which customer has more than 1 vehicle), by referencing
+	the car IDs:
+*/
+ 
+SELECT C.IDCUSTOMER, COUNT(*), C.NAME
+FROM CUSTOMER C
+INNER JOIN CAR A
+ON C.IDCUSTOMER = A.ID_CUSTOMER_CAR
+GROUP BY IDCUSTOMER;
+ 
+/* Now let us delete one of the entries from Renato (customer ID 3) */
+
+SELECT C.NAME, A.MODEL, A.IDCAR, A.BRAND
+FROM CUSTOMER C
+INNER JOIN CAR A
+ON C.IDCUSTOMER = A.ID_CUSTOMER_CAR
+WHERE IDCUSTOMER = 3;
+
++---------------+--------+-------+-----------+
+| NAME          | MODEL  | IDCAR | BRAND     |
++---------------+--------+-------+-----------+
+| RENATO SIMOES | Genius |     3 | Chevrolet |
+| RENATO SIMOES | SD300  |     4 | Peugeot   |
++---------------+--------+-------+-----------+
+
+/* Let us now delete the Chevrolet entry, car ID 3 */
+
+DELETE FROM CAR WHERE IDCAR = 3;
+
+SELECT * FROM CAR;
+
+/* The entry was succesfully deleted */
+
+/* 
+	Also, the client would like to create a database for the client table,
+	so everytime a new client was created, a table would safely backup his
+	or her name. We can do this by creating a trigger. First, we create a
+	new table for backup and then we create the trigger, configured to store
+	the information as soon as it is added to the CUSTOMER table:
+*/
+
+CREATE TABLE CUSTOMER_BKP(
+	IDCUSTOMER_BKP INT PRIMARY KEY AUTO_INCREMENT,
+	IDCUSTOMER INT,
+	NAME VARCHAR(40) NOT NULL,
+	GENDER ENUM('M','F') NOT NULL
+);
+
+DELIMITER $$
+
+CREATE TRIGGER BACKUP_CUSTOMER
+AFTER INSERT ON CUSTOMER
+FOR EACH ROW
+BEGIN
+	INSERT INTO CUSTOMER_BKP VALUES(NULL,NEW.IDCUSTOMER,NEW.NAME,NEW.GENDER);
+END
+$$
+
+DELIMITER ;
+
+/* Adding a new line so we can check if the backup is working */
+
+INSERT INTO CUSTOMER VALUES(NULL,'TABATA REBECA','F');
+
+SELECT * FROM CUSTOMER_BKP;
+
+/* The trigger is working accordingly! */
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
